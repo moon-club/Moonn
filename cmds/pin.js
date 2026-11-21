@@ -18,7 +18,8 @@ async function pinterestScraper(query, limit = 10) {
 
     const json = await res.json();
     
-    // Soporte para ambas estructuras (viejas y nuevas de Pinterest v3)
+    console.log('[PINTEREST JSON COMPLETO]:', JSON.stringify(json, null, 2));
+
     const results = json.resource_response?.data?.results || json.resource_response?.data?.bookmark_results || [];
 
     return results
