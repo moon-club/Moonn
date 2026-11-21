@@ -14,10 +14,17 @@ async function pinterestScraper(query, limit = 10) {
     };
 
     const res = await fetch(url, { headers });
+    console.log('[PINTEREST] HTTP Status:', res.status);
+    
     if (!res.ok) throw new Error(`Pinterest HTTP ${res.status}`);
 
     const json = await res.json();
-    if (!json.resource_response?.data?.results) return [];
+    console.log('[PINTEREST] JSON recibido:', JSON.stringify(json).slice(0, 300));
+
+    if (!json.resource_response?.data?.results) {
+        console.log('[PINTEREST] No se encontró resource_response.data.results en la respuesta.');
+        return [];
+    }
 
     return json.resource_response.data.results
         .map(item => {
@@ -36,7 +43,7 @@ export default {
         const from = msg.chat;
 
         if (!text) {
-            return msg.reply(`Escribe lo que quieres buscar en Pinterest.\nEjemplo: \`${usedPrefix + command} Hatsune Miku\`[span_0](start_span)[span_0](end_span)`);
+            return msg.reply(`Escribe lo que quieres buscar en Pinterest.\nEjemplo: \`${usedPrefix + command} Hatsune Miku\``);
         }
 
         const partes = text.trim().split(/\s+/);
@@ -53,7 +60,9 @@ export default {
         if (cantidadSolicitada > 10) cantidadSolicitada = 10;
 
         try {
+            console.log(`[PINTEREST] Buscando: "${busqueda}" con límite: ${cantidadSolicitada}`);
             const resultados = await pinterestScraper(busqueda, cantidadSolicitada);
+            console.log(`[PINTEREST] Imágenes encontradas: ${resultados.length}`);
 
             if (resultados.length === 0) {
                 return msg.reply(`No se encontraron imágenes para "${busqueda}".`);
@@ -67,7 +76,7 @@ export default {
             }
 
         } catch (e) {
-            console.error(e);
+            console.error('[PINTEREST ERROR]:', e);
             await msg.reply('Ocurrió un error al realizar la búsqueda en Pinterest.');
         }
     }
