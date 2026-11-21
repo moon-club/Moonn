@@ -3,11 +3,7 @@ import { watchFile, unwatchFile } from 'fs';
 import { fileURLToPath } from 'url';
 
 global.owner = [
-    '573015200599',
-    '104260465336559@lid',
-    '593989068253',
-    '584148014097',
-    '5491157745642',
+    '584164360565',
 ];
 
 global.devs = [
@@ -27,7 +23,7 @@ global.links = {
   api: 'https://api.evogb.org',
   channel: "https://whatsapp.com/channel/0029VbCbocKJpe8WhogtnG0w",
   github: "https://github.com/mai1206-art",
-  gmail: "reyesmichael706@gmail.com"
+  gmail: "hannerjhossue@gmail.com"
 };
 
 global.my = {
