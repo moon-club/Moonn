@@ -1,24 +1,37 @@
 async function pinterestScraper(query, limit = 10) {
-    const url = `https://www.pinterest.com/search/pins/?q=${encodeURIComponent(query)}&rs=typed`;
+    const url = `https://www.pinterest.com/resource/BaseSearchResource/get/?source_url=%2Fsearch%2Fpins%2F%3Fq%3D${encodeURIComponent(query)}&data=%7B%22options%22%3A%7B%22query%22%3A%22${encodeURIComponent(query)}%22%2C%22scope%22%3A%22pins%22%2C%22rs%22%3A%22typed%22%7D%2C%22context%22%3A%7B%7D%7D`;
 
-    const headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-        'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8'
-    };
+    const res = await fetch(url, {
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    });
 
-    const res = await fetch(url, { headers });
     if (!res.ok) throw new Error(`Pinterest HTTP ${res.status}`);
 
-    const html = await res.text();
-    
-    const matches = [...html.matchAll(/"get_orig_url"\s*:\s*"(https:\/\/i\.pinimg\.com\/originals\/[^"]+)"/g)]
-        .map(m => m[1])
-        .concat([...html.matchAll(/"url"\s*:\s*"(https:\/\/i\.pinimg\.com\/736x\/[^"]+\.(?:jpg|png|webp))"/g)].map(m => m[1]));
+    const json = await res.json();
+    let results = json.resource_response?.data?.results || [];
 
-    const uniqueUrls = [...new Set(matches)];
+    if (results.length === 0) {
+        const altRes = await fetch(`https://pinterest-api-v1.p.rapidapi.com/search/pins?query=${encodeURIComponent(query)}`, {
+            headers: { 'User-Agent': 'Mozilla/5.0' }
+        }).catch(() => null);
+        
+        if (altRes && altRes.ok) {
+            const altJson = await altRes.json();
+            results = altJson.data || altJson.results || [];
+        }
+    }
 
-    return uniqueUrls.slice(0, limit);
+    return results
+        .map(item => {
+            const images = item.images || item.pin_join?.images;
+            if (!images) return null;
+            return images.orig?.url || images['736x']?.url || images['600x']?.url || images['236x']?.url || null;
+        })
+        .filter(Boolean)
+        .slice(0, limit);
 }
 
 export default {
