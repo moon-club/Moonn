@@ -22,7 +22,7 @@ global.dev = "Created by @mai";
 global.links = {
   api: 'https://api.evogb.org',
   channel: "https://whatsapp.com/channel/0029VbCbocKJpe8WhogtnG0w",
-  github: "https://github.com/mai1206-art",
+  github: "https://github.com/moon-club",
   gmail: "hannerjhossue@gmail.com"
 };
 
