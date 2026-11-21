@@ -14,22 +14,18 @@ async function pinterestScraper(query, limit = 10) {
     };
 
     const res = await fetch(url, { headers });
-    console.log('[PINTEREST] HTTP Status:', res.status);
-    
     if (!res.ok) throw new Error(`Pinterest HTTP ${res.status}`);
 
     const json = await res.json();
-    console.log('[PINTEREST] JSON recibido:', JSON.stringify(json).slice(0, 300));
+    
+    // Soporte para ambas estructuras (viejas y nuevas de Pinterest v3)
+    const results = json.resource_response?.data?.results || json.resource_response?.data?.bookmark_results || [];
 
-    if (!json.resource_response?.data?.results) {
-        console.log('[PINTEREST] No se encontró resource_response.data.results en la respuesta.');
-        return [];
-    }
-
-    return json.resource_response.data.results
+    return results
         .map(item => {
-            if (!item.images) return null;
-            return item.images.orig?.url || item.images['600x']?.url || item.images['236x']?.url || null;
+            const images = item.images || item.pin_join?.images;
+            if (!images) return null;
+            return images.orig?.url || images['600x']?.url || images['236x']?.url || null;
         })
         .filter(Boolean)
         .slice(0, limit);
@@ -60,9 +56,7 @@ export default {
         if (cantidadSolicitada > 10) cantidadSolicitada = 10;
 
         try {
-            console.log(`[PINTEREST] Buscando: "${busqueda}" con límite: ${cantidadSolicitada}`);
             const resultados = await pinterestScraper(busqueda, cantidadSolicitada);
-            console.log(`[PINTEREST] Imágenes encontradas: ${resultados.length}`);
 
             if (resultados.length === 0) {
                 return msg.reply(`No se encontraron imágenes para "${busqueda}".`);
