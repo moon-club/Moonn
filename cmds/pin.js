@@ -2,8 +2,9 @@ async function pinterestScraper(query, limit = 10) {
     const url = `https://www.pinterest.com/search/pins/?q=${encodeURIComponent(query)}&rs=typed`;
 
     const headers = {
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'accept-language': 'es-ES,es;q=0.9,en;q=0.8'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8'
     };
 
     const res = await fetch(url, { headers });
@@ -11,11 +12,10 @@ async function pinterestScraper(query, limit = 10) {
 
     const html = await res.text();
     
-    // Extraer URLs de imágenes de alta calidad directamente del HTML con expresiones regulares
-    const regex = /https:\/\/i\.pinimg\.com\/originals\/[a-f0-9\/]+[^\s"<>]+?\.(?:jpg|png|webp)/gi;
-    const matches = html.match(regex) || [];
+    const matches = [...html.matchAll(/"get_orig_url"\s*:\s*"(https:\/\/i\.pinimg\.com\/originals\/[^"]+)"/g)]
+        .map(m => m[1])
+        .concat([...html.matchAll(/"url"\s*:\s*"(https:\/\/i\.pinimg\.com\/736x\/[^"]+\.(?:jpg|png|webp))"/g)].map(m => m[1]));
 
-    // Limpiar y eliminar duplicados
     const uniqueUrls = [...new Set(matches)];
 
     return uniqueUrls.slice(0, limit);
