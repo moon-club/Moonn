@@ -17,7 +17,7 @@ export default {
     if (p === 1 || p === true) {
       texto = 'ꕤ Este bot funciona *sin prefijo*, solo escribe el comando.';
     } else if (Array.isArray(p) && p.length) {
-      texto = `ꕤ Prefijos del bot:\n${p.map(x => `✎ *${x}*`).join('\n')}`;
+      texto = `ꕤ Prefijos del bot:\n${p.map(x => `✎ *${x}*`).join('\n')}\n> sumi sakurisawa`;
     } else if (typeof p === 'string' && p) {
       texto = `ꕤ Prefijo del bot: *${p}*`;
     }
