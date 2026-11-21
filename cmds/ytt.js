@@ -7,23 +7,16 @@ import { spawn } from 'child_process'
 import { pipeline } from 'stream/promises'
 import { Readable } from 'stream'
 
-// --- CONFIGURACIÓN DEL SCRAPER (SIN API KEY) ---
-const BASE = 'https://api.evogb.org'
-const ROUTES = {
-  ytmp3: '/api/dl/ytmp3',
-  ytmp4: '/api/dl/ytmp4'
-}
-
-const QUALITIES = ['144p', '240p', '360p', '480p', '720p', '1080p']
-const DEFAULT_QUALITY = '480p'
-const MAX_SECONDS = 25 * 60
+export const QUALITIES = ['144p', '240p', '360p', '480p', '720p', '1080p']
+export const DEFAULT_QUALITY = '480p'
+export const MAX_SECONDS = 25 * 60
 
 const MAX_BYTES = 120 * 1024 * 1024
-const API_TIMEOUT = 60000
+const API_TIMEOUT = 45000
 const SEARCH_TIMEOUT = 20000
 const DL_TIMEOUT = 5 * 60 * 1000
 
-const isYT = (t) => /(youtube\.com|youtu\.be)\//i.test(t)
+export const isYT = (t) => /(youtube\.com|youtu\.be)\//i.test(t)
 
 const tooBig = () => {
   const e = new Error('El archivo supera los 120 MB')
@@ -41,52 +34,90 @@ const toSeconds = (d) => {
   return p.reduce((a, v) => a * 60 + v, 0)
 }
 
-async function api(routePath, params) {
-  const qs = new URLSearchParams(params).toString()
+// Endpoints organizados usando las APIs de tu settings.js (con fallback automático)
+const getEndpoints = (type) => {
+  const evogbUrl = String(global.APIs?.evogb?.url || global.links?.api || 'https://api.evogb.org').replace(/\/$/, '')
+  const evogbKey = global.APIs?.evogb?.key
+  const customRoute = global.APIs?.evogb?.routes?.[type]
+
+  const vredenUrl = String(global.APIs?.vreden?.url || 'https://api.vreden.web.id').replace(/\/$/, '')
+  const deliriusUrl = String(global.APIs?.delirius?.url || 'https://api.delirius.online').replace(/\/$/, '')
+  const siputzxUrl = String(global.APIs?.siputzx?.url || 'https://app.siputzx.my.id').replace(/\/$/, '')
+
+  if (type === 'ytmp3') {
+    return [
+      ...(customRoute ? [{ base: evogbUrl, path: customRoute, key: evogbKey }] : []),
+      { base: evogbUrl, path: '/api/dl/ytmp3', key: evogbKey },
+      { base: evogbUrl, path: '/api/ytmp3', key: evogbKey },
+      { base: evogbUrl, path: '/download/ytmp3', key: evogbKey },
+      { base: vredenUrl, path: '/api/ytmp3', key: null },
+      { base: deliriusUrl, path: '/download/ytmp3', key: null },
+      { base: siputzxUrl, path: '/api/d/ytmp3', key: null }
+    ]
+  } else {
+    return [
+      ...(customRoute ? [{ base: evogbUrl, path: customRoute, key: evogbKey }] : []),
+      { base: evogbUrl, path: '/api/dl/ytmp4', key: evogbKey },
+      { base: evogbUrl, path: '/api/ytmp4', key: evogbKey },
+      { base: evogbUrl, path: '/download/ytmp4', key: evogbKey },
+      { base: vredenUrl, path: '/api/ytmp4', key: null },
+      { base: deliriusUrl, path: '/download/ytmp4', key: null },
+      { base: siputzxUrl, path: '/api/d/ytmp4', key: null }
+    ]
+  }
+}
+
+async function fetchEndpoint(endpoint, params) {
+  const queryObj = { ...params }
+  if (endpoint.key) queryObj.key = endpoint.key // Solo agrega key si existe en settings.js
+
+  const qs = new URLSearchParams(queryObj).toString()
   const ctrl = new AbortController()
   const t = setTimeout(() => ctrl.abort(), API_TIMEOUT)
+
   try {
-    const res = await fetch(`${BASE}${routePath}?${qs}`, {
+    const fullUrl = `${endpoint.base}${endpoint.path}?${qs}`
+    const res = await fetch(fullUrl, {
       headers: { accept: 'application/json', 'user-agent': 'Mozilla/5.0' },
       signal: ctrl.signal
     })
     if (!res.ok) {
-      console.error(`[yt] ${routePath} respondió ${res.status}`)
+      console.error(`[yt] ${endpoint.base}${endpoint.path} respondió ${res.status}`)
       return null
     }
     const json = await res.json()
-    const d = json?.data || json?.result || null
-    if (!d) console.error(`[yt] ${routePath} sin data: ${JSON.stringify(json).slice(0, 200)}`)
-    return d
+    // Diferentes APIs devuelven el objeto en data, result, download o directamente
+    const d = json?.data || json?.result || (json?.url || json?.dl ? json : null)
+    if (!d || Array.isArray(d)) return null
+
+    // Extraer el link de descarga sin importar cómo lo llame cada API
+    const dl = d.dl || d.download?.url || d.download || d.url || d.video || d.audio || d.link
+    if (!dl || typeof dl !== 'string') return null
+
+    return {
+      dl,
+      title: d.title || d.metadata?.title || d.name || 'sin título',
+      quality: d.quality || d.calidad || params.quality || '128kbps',
+      seconds: toSeconds(d.seconds ?? d.duration ?? d.metadata?.seconds ?? d.timestamp ?? d.lengthSeconds)
+    }
   } catch (e) {
-    console.error(`[yt] ${routePath} falló: ${e.name === 'AbortError' ? `sin respuesta en ${API_TIMEOUT / 1000}s` : e.message}`)
+    console.error(`[yt] ${endpoint.base}${endpoint.path} falló: ${e.name === 'AbortError' ? 'timeout' : e.message}`)
     return null
   } finally {
     clearTimeout(t)
   }
 }
 
-async function media(routePath, params) {
-  const d = await api(routePath, params)
-  if (!d) return null
-  if (Array.isArray(d)) {
-    console.error(`[yt] ${routePath} devolvió una lista, se esperaba un objeto: ${JSON.stringify(d).slice(0, 200)}`)
-    return null
+async function mediaWithFallback(type, params) {
+  const endpoints = getEndpoints(type)
+  for (const ep of endpoints) {
+    const result = await fetchEndpoint(ep, params)
+    if (result) return result
   }
-  const dl = d.dl || d.download || d.url || d.video || d.audio
-  if (!dl || typeof dl !== 'string') {
-    console.error(`[yt] ${routePath} sin link de descarga`)
-    return null
-  }
-  return {
-    dl,
-    title: d.title || d.name || 'sin título',
-    quality: d.quality || d.calidad || params.quality,
-    seconds: toSeconds(d.seconds ?? d.duration ?? d.timestamp ?? d.lengthSeconds)
-  }
+  return null
 }
 
-async function search(query, limit = 10) {
+export async function search(query, limit = 10) {
   let timer
   try {
     const res = await Promise.race([
@@ -120,26 +151,26 @@ const fallbackOf = (q) => {
   return null
 }
 
-async function resolveVideo(input, quality = DEFAULT_QUALITY) {
+export async function resolveVideo(input, quality = DEFAULT_QUALITY) {
   const url = await toUrl(input)
   if (!url) return null
   const order = [quality]
   const fb = fallbackOf(quality)
   if (fb) order.push(fb)
   for (const q of order) {
-    const data = await media(ROUTES.ytmp4, { url, quality: q })
+    const data = await mediaWithFallback('ytmp4', { url, quality: q })
     if (data) return { ...data, asked: quality, tried: q }
   }
   return null
 }
 
-async function resolveAudio(input) {
+export async function resolveAudio(input) {
   const url = await toUrl(input)
   if (!url) return null
-  return media(ROUTES.ytmp3, { url })
+  return mediaWithFallback('ytmp3', { url })
 }
 
-async function download(url, dest) {
+export async function download(url, dest) {
   const ctrl = new AbortController()
   const t = setTimeout(() => ctrl.abort(), DL_TIMEOUT)
   try {
@@ -219,7 +250,7 @@ function runFfmpeg(args, output, timeout) {
   })
 }
 
-async function prepareVideo(input, output) {
+export async function prepareVideo(input, output) {
   if (!(await hasFfmpeg())) return false
   const info = await probe(input)
   const vOk = info?.v === 'h264' && info?.pix === 'yuv420p'
@@ -235,7 +266,7 @@ async function prepareVideo(input, output) {
   return runFfmpeg(args, output, vOk && aOk ? 2 * 60 * 1000 : 6 * 60 * 1000)
 }
 
-async function prepareAudio(input, output) {
+export async function prepareAudio(input, output) {
   if (!(await hasFfmpeg())) return false
   const info = await probe(input)
   const args = ['-i', input, '-vn', '-map', '0:a:0']
@@ -244,7 +275,7 @@ async function prepareAudio(input, output) {
   return runFfmpeg(args, output, 4 * 60 * 1000)
 }
 
-// --- ESTRUCTURA DEL COMANDO PARA TU BOT ---
+// --- COMANDO PARA MOONN ---
 export default {
   command: ['ytt', 'yttv'],
   category: 'downloader',
@@ -252,7 +283,7 @@ export default {
   run: async ({ msg, sock, usedPrefix, command, text }) => {
     if (!text) {
       return msg.reply(
-        `⚠️ Ingresa el nombre o enlace de YouTube.\n\n` +
+        `✿ Ingresa el nombre o enlace de YouTube.\n\n` +
         `• Audio: *${usedPrefix}ytt* <búsqueda o link>\n` +
         `• Video: *${usedPrefix}yttv* <búsqueda o link>`
       )
@@ -272,11 +303,11 @@ export default {
         : await resolveAudio(text)
 
       if (!mediaInfo || !mediaInfo.dl) {
-        return msg.reply('❌ No se pudo obtener el enlace de descarga.')
+        return msg.reply('❌ Ninguna API devolvió el enlace de descarga en este momento.')
       }
 
       if (mediaInfo.seconds && mediaInfo.seconds > MAX_SECONDS) {
-        return msg.reply(`❌ El video supera el límite de ${MAX_SECONDS / 60} minutos.`)
+        return msg.reply(`❌ El video supera el límite permitido de ${MAX_SECONDS / 60} minutos.`)
       }
 
       await download(mediaInfo.dl, rawFile)
@@ -291,7 +322,7 @@ export default {
         await sock.sendMessage(msg.chat, {
           video: fs.readFileSync(finalFile),
           mimetype: 'video/mp4',
-          caption: `🎬 *${mediaInfo.title}* (${mediaInfo.quality || DEFAULT_QUALITY})`
+          caption: `🎬 *${mediaInfo.title}* (${mediaInfo.tried || DEFAULT_QUALITY})`
         }, { quoted: msg })
       } else {
         await sock.sendMessage(msg.chat, {
@@ -303,10 +334,10 @@ export default {
 
     } catch (error) {
       console.error('[ytt error]:', error)
-      await msg.reply(`❌ Error: ${error.message}`)
+      await msg.reply(error.code === 'TOO_BIG' ? '❌ El archivo supera los 120 MB.' : global.msgglobal || `❌ Error: ${error.message}`)
     } finally {
       if (fs.existsSync(rawFile)) fs.unlinkSync(rawFile)
       if (fs.existsSync(processedFile)) fs.unlinkSync(processedFile)
     }
   }
-      }
+    }
