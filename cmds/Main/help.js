@@ -68,7 +68,7 @@ export default {
 
       let menu = `> *¡ʜᴏʟᴀ!* ${msg.pushName}, como está tu día?, mucho gusto mi nombre es *${namebot2}* ʚ♡⃛ɞ(ू•ᴗ•ू❁)*\n\n` +
       ` ⌒࣪᷼⏜͡ ۪ ࿚ꨪᰰ࿙ ࣭࣪⢏࣭۟⢢࣭ׄ᎐፝֟᎐࣭ׄ⡔࣭۟⡹࣭ׄ ࿚ꨪᰰ࿙ ۪ ͡⏜ׄ᷼⌒\n\n` +
-      `: ̗̀〄 *ᴅᴇᴠᴇʟᴏᴘᴇʀ ::* ᴍᴏᴏɴ\n` +
+      `: ̗̀〄 *ᴅᴇᴠᴇʟᴏᴘᴇʀ ::* ᴍᴏᴏɴ ᴄʟᴜʙ\n` +
       `: ̗̀☕︎ *ᴏᴡɴᴇʀ ::* ${dev}\n` +
       `: ̗̀ꕥ *ᴛɪᴘᴏ ::* ${botType}\n` +
       `: ̗̀☄︎ *sɪsᴛᴇᴍᴀ/ᴏᴘʀ ::* ${platform}\n\n` +
@@ -119,7 +119,7 @@ export default {
         if (isVideo) {
           await sock.sendMessage(msg.chat, { video: { url: banner }, caption: finalText, contextInfo: ctx }, { quoted: msg })
         } else {
-          const preview = link ? await prepareWAMessageMedia({ image: { url: banner } }, { upload: sock.waUploadToServer, mediaTypeOverride: 'thumbnail-link' }).then(m => ({ 'canonical-url': link, 'matched-text': link, title: namebot, description: `${namebot2}, ✧ ─━⊜ POWERED BY |─━ PROYECTO LUNA 🔭`, jpegThumbnail: m.imageMessage?.jpegThumbnail ? Buffer.from(m.imageMessage.jpegThumbnail) : undefined, highQualityThumbnail: m.imageMessage || undefined })) : undefined
+          const preview = link ? await prepareWAMessageMedia({ image: { url: banner } }, { upload: sock.waUploadToServer, mediaTypeOverride: 'thumbnail-link' }).then(m => ({ 'canonical-url': link, 'matched-text': link, title: namebot, description: `✧ ─━⊜ POWERED BY |─━ PROYECTO LUNA 🔭`, jpegThumbnail: m.imageMessage?.jpegThumbnail ? Buffer.from(m.imageMessage.jpegThumbnail) : undefined, highQualityThumbnail: m.imageMessage || undefined })) : undefined
           await sock.sendMessage(msg.chat, { text: finalText, linkPreview: preview, contextInfo: ctx }, { quoted: msg })
         }
       } catch (err) {
