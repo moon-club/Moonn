@@ -1,6 +1,6 @@
 {
-  "name": "sumi",
-  "version": "release-1.0",
+  "name": "Nazuna",
+  "version": "beta-0.1",
   "description": "WhatsApp multi Device, updated with better performance",
   "main": "index.js",
   "type": "module",
