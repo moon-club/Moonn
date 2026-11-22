@@ -107,7 +107,7 @@ export default {
         menu += `╰╼ׅࣶ፝֟╾╌ֵ╾͜─ํ͜┈ְ ࣭࣪⢏࣭ࣧ⢢࣭ׄ᎐፝֟͟͝᎐࣭ׄ⡔࣭ࣧ⡹࣭ׄ ְ┈ํ͜─͜╼ꨪᰰ╾࣮╌╼ࣶׅ፝֟╾╯ \n`
       }
 
-      menu += `\n> ${namebot2} desarrollado por *𝐴𝑒𝑡ℎ𝑒𝑟 𝐿𝐴𝐵𝑆* ૮(˶ᵔᵕᵔ˶)ა`
+      menu += `\n> ${namebot2} desarrollado por *ᴍᴏᴏɴ ᴄʟᴜʙ* ૮(˶ᵔᵕᵔ˶)ა`
       
       const finalText = menu.trim()
       const ctx = { mentionedJid: null, isForwarded: false }
