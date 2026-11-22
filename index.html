@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moon Club | Nazuna Bot</title>
+    <style>
+        :root {
+            --bg-dark: #090512;
+            --bg-card: #130b24;
+            --primary: #a855f7;
+            --secondary: #ec4899;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --online: #10b981;
+            --offline: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at 50% 0%, #241042 0%, var(--bg-dark) 70%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 750px;
+            width: 100%;
+            text-align: center;
+        }
+
+        header {
+            margin-bottom: 2.5rem;
+        }
+
+        .moon-icon {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+            filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.6));
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #c084fc, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            margin-top: 0.5rem;
+        }
+
+        .status-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(168, 85, 247, 0.25);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.6rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--offline);
+            box-shadow: 0 0 10px var(--offline);
+            transition: all 0.3s ease;
+        }
+
+        .dot.online {
+            background-color: var(--online);
+            box-shadow: 0 0 10px var(--online);
+        }
+
+        .api-box {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            color: var(--text-main);
+            padding: 0.65rem 1rem;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 340px;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        input:focus {
+            border-color: var(--secondary);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 0.65rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+            text-align: left;
+        }
+
+        .cmd-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 1.2rem;
+            border-radius: 12px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .cmd-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(168, 85, 247, 0.4);
+        }
+
+        .cmd-tag {
+            display: inline-block;
+            background: rgba(168, 85, 247, 0.15);
+            color: #d8b4fe;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .cmd-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn-outline:hover {
+            background: rgba(168, 85, 247, 0.15);
+        }
+
+        footer {
+            margin-top: auto;
+            padding-top: 3rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="moon-icon">🌙</div>
+            <h1>MOON CLUB</h1>
+            <p class="subtitle">WhatsApp Bot inspirado en Nazuna Nanakusa</p>
+        </header>
+
+        <section class="status-card">
+            <div class="status-header">
+                <span class="dot" id="statusDot"></span>
+                <span id="statusText">Termux API: Desconectado</span>
+            </div>
+            <div class="api-box">
+                <input type="text" id="endpointInput" placeholder="URL del túnel (ej. https://tu-tunel.trycloudflare.com/status)">
+                <button onclick="checkConnection()">Conectar</button>
+            </div>
+        </section>
+
+        <section class="commands-grid">
+            <div class="cmd-card">
+                <span class="cmd-tag">.menu</span>
+                <p>Despliega la lista completa de funciones nocturnas disponibles.</p>
+            </div>
+            <div class="cmd-card">
+                <span class="cmd-tag">.sticker</span>
+                <p>Convierte imágenes o videos cortos en stickers al instante.</p>
+            </div>
+            <div class="cmd-card">
+                <span class="cmd-tag">.play</span>
+                <p>Descarga audio y música directamente en el chat.</p>
+            </div>
+            <div class="cmd-card">
+                <span class="cmd-tag">.ping</span>
+                <p>Verifica la velocidad de respuesta del servidor en Termux.</p>
+            </div>
+        </section>
+
+        <div class="actions">
+            <a href="https://github.com" target="_blank" class="btn-outline">Repositorio GitHub</a>
+            <a href="https://wa.me/" target="_blank" class="btn-outline">Abrir WhatsApp</a>
+        </div>
+    </div>
+
+    <footer>
+        Moon Club Project • Call of the Night Edition
+    </footer>
+
+    <script>
+        async function checkConnection() {
+            const url = document.getElementById('endpointInput').value.trim();
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+
+            if (!url) {
+                text.textContent = "Ingresa una URL válida";
+                return;
+            }
+
+            text.textContent = "Conectando con Termux...";
+            dot.classList.remove('online');
+
+            try {
+                const response = await fetch(url);
+                if (response.ok) {
+                    dot.classList.add('online');
+                    text.textContent = "Termux API: En línea";
+                } else {
+                    text.textContent = "Error de respuesta (" + response.status + ")";
+                }
+            } catch (error) {
+                text.textContent = "Sin conexión al servidor local";
+            }
+        }
+    </script>
+
+</body>
+              </html>
