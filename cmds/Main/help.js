@@ -58,7 +58,7 @@ export default {
       const sinPrefijo = /^(help|menu)$/i.test(usedPrefix)
       const cfg = botSettings.prefijo
       const prefix = sinPrefijo ? (Array.isArray(cfg) ? cfg[0] : typeof cfg === 'string' ? cfg : '') : usedPrefix
-      const link = 'https://api.evogb.org'
+      const link = 'https://moonclub.vercel.app/'
       const isOficialBot = botId === (global?.sock?.user?.id?.split(':')[0] + '@s.whatsapp.net')
       const botType = isOficialBot ? 'Owner' : 'Sub Bot'
       const platform = `${os.type()} ${os.release()} ${os.arch()}`
