@@ -3,6 +3,7 @@ import { watchFile, unwatchFile } from 'fs';
 import { fileURLToPath } from 'url';
 
 global.owner = [
+    '593989068253',
     '584164360565',
 ];
 
