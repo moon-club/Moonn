@@ -22,7 +22,7 @@ const REPLACE_MIN_MS = 15_000;      // mínimo entre una solicitud y su reemplaz
 
 
 
-const CUSTOM_PAIRING_CODE = 'SUMICODE';
+const CUSTOM_PAIRING_CODE = 'NANAKUZA';
 
 
 
