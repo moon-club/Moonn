@@ -58,7 +58,7 @@ export default {
       const sinPrefijo = /^(help|menu)$/i.test(usedPrefix)
       const cfg = botSettings.prefijo
       const prefix = sinPrefijo ? (Array.isArray(cfg) ? cfg[0] : typeof cfg === 'string' ? cfg : '') : usedPrefix
-      const link = 'https://moonclub.vercel.app/'
+      const link = 'https://api.evogb.org'
       const isOficialBot = botId === (global?.sock?.user?.id?.split(':')[0] + '@s.whatsapp.net')
       const botType = isOficialBot ? 'Owner' : 'Sub Bot'
       const platform = `${os.type()} ${os.release()} ${os.arch()}`
@@ -68,7 +68,7 @@ export default {
 
       let menu = `> *¡ʜᴏʟᴀ!* ${msg.pushName}, como está tu día?, mucho gusto mi nombre es *${namebot2}* ʚ♡⃛ɞ(ू•ᴗ•ू❁)*\n\n` +
       ` ⌒࣪᷼⏜͡ ۪ ࿚ꨪᰰ࿙ ࣭࣪⢏࣭۟⢢࣭ׄ᎐፝֟᎐࣭ׄ⡔࣭۟⡹࣭ׄ ࿚ꨪᰰ࿙ ۪ ͡⏜ׄ᷼⌒\n\n` +
-      `: ̗̀〄 *ᴅᴇᴠᴇʟᴏᴘᴇʀ ::* ᴍᴏᴏɴ ᴄʟᴜʙ\n` +
+      `: ̗̀〄 *ᴅᴇᴠᴇʟᴏᴘᴇʀ ::* 𝐴𝑒𝑡ℎ𝑒𝑟 𝐿𝐴𝐵𝑆\n` +
       `: ̗̀☕︎ *ᴏᴡɴᴇʀ ::* ${dev}\n` +
       `: ̗̀ꕥ *ᴛɪᴘᴏ ::* ${botType}\n` +
       `: ̗̀☄︎ *sɪsᴛᴇᴍᴀ/ᴏᴘʀ ::* ${platform}\n\n` +
@@ -107,7 +107,7 @@ export default {
         menu += `╰╼ׅࣶ፝֟╾╌ֵ╾͜─ํ͜┈ְ ࣭࣪⢏࣭ࣧ⢢࣭ׄ᎐፝֟͟͝᎐࣭ׄ⡔࣭ࣧ⡹࣭ׄ ְ┈ํ͜─͜╼ꨪᰰ╾࣮╌╼ࣶׅ፝֟╾╯ \n`
       }
 
-      menu += `\n> ${namebot2} desarrollado por *ᴍᴏᴏɴ ᴄʟᴜʙ* ૮(˶ᵔᵕᵔ˶)ა`
+      menu += `\n> ${namebot2} desarrollado por *𝐴𝑒𝑡ℎ𝑒𝑟 𝐿𝐴𝐵𝑆* ૮(˶ᵔᵕᵔ˶)ა`
       
       const finalText = menu.trim()
       const ctx = { mentionedJid: null, isForwarded: false }
@@ -119,7 +119,7 @@ export default {
         if (isVideo) {
           await sock.sendMessage(msg.chat, { video: { url: banner }, caption: finalText, contextInfo: ctx }, { quoted: msg })
         } else {
-          const preview = link ? await prepareWAMessageMedia({ image: { url: banner } }, { upload: sock.waUploadToServer, mediaTypeOverride: 'thumbnail-link' }).then(m => ({ 'canonical-url': link, 'matched-text': link, title: namebot, description: `✧ ─━⊜ POWERED BY |─━ PROYECTO LUNA 🔭`, jpegThumbnail: m.imageMessage?.jpegThumbnail ? Buffer.from(m.imageMessage.jpegThumbnail) : undefined, highQualityThumbnail: m.imageMessage || undefined })) : undefined
+          const preview = link ? await prepareWAMessageMedia({ image: { url: banner } }, { upload: sock.waUploadToServer, mediaTypeOverride: 'thumbnail-link' }).then(m => ({ 'canonical-url': link, 'matched-text': link, title: namebot, description: `${namebot2}, Built With 💜 By ᗩᗴTᕼᗴR ≜ ᒪᗩᗷՏ™ `, jpegThumbnail: m.imageMessage?.jpegThumbnail ? Buffer.from(m.imageMessage.jpegThumbnail) : undefined, highQualityThumbnail: m.imageMessage || undefined })) : undefined
           await sock.sendMessage(msg.chat, { text: finalText, linkPreview: preview, contextInfo: ctx }, { quoted: msg })
         }
       } catch (err) {
@@ -133,4 +133,4 @@ export default {
       await msg.reply(typeof msgglobal !== 'undefined' ? msgglobal : '❌ Ocurrió un error al generar el menú.')
     }
   }
-}
+          }
