@@ -1,5 +1,15 @@
-import { createCanvas, loadImage } from '@napi-rs/canvas';
+import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
 import db from '#db';
+import fs from 'fs';
+import path from 'path';
+
+// Opcional: Si tienes un archivo .ttf o .woff en tu proyecto (por ejemplo, en una carpeta assets/fonts/font.ttf)
+// Puedes registrarlo globalmente para que Canvas lo reconozca siempre:
+// try {
+//     GlobalFonts.registerFromPath(path.join(process.cwd(), 'assets', 'fonts', 'Roboto-Regular.ttf'), 'CustomFont');
+// } catch (e) {
+//     console.error('No se pudo cargar la fuente personalizada:', e);
+// }
 
 export default {
     command: ['tarjeta2', 'card2'],
@@ -72,36 +82,38 @@ export default {
             ctx.roundRect(60, 250, 140, 35, 18);
             ctx.fill();
 
-            // Textos configurados usando la familia genérica de tipografía base de Harfbuzz/FreeType en C++
+            // Definimos la fuente (si registraste una personalizada usa su nombre, si no, usa una familia común instalada)
+            const fontFamily = 'sans-serif'; 
+
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 16px sans-serif';
+            ctx.font = `bold 16px ${fontFamily}`;
             ctx.textAlign = 'center';
             ctx.fillText(`NIVEL ${level}`, 130, 273);
 
             ctx.textAlign = 'left';
-            ctx.font = 'bold 28px sans-serif';
+            ctx.font = `bold 28px ${fontFamily}`;
             ctx.fillStyle = '#f8fafc';
             ctx.fillText(name, 240, 100);
 
-            ctx.font = '14px sans-serif';
+            ctx.font = `14px ${fontFamily}`;
             ctx.fillStyle = '#94a3b8';
             ctx.fillText(`"${bio}"`, 240, 135);
 
-            ctx.font = 'bold 13px sans-serif';
+            ctx.font = `bold 13px ${fontFamily}`;
             ctx.fillStyle = '#38bdf8';
             ctx.fillText('CARTERA', 260, 205);
-            ctx.font = 'bold 20px sans-serif';
+            ctx.font = `bold 20px ${fontFamily}`;
             ctx.fillStyle = '#ffffff';
             ctx.fillText(`${coins} ${currency}`, 260, 235);
 
-            ctx.font = 'bold 13px sans-serif';
+            ctx.font = `bold 13px ${fontFamily}`;
             ctx.fillStyle = '#a855f7';
             ctx.fillText('BANCO', 520, 205);
-            ctx.font = 'bold 20px sans-serif';
+            ctx.font = `bold 20px ${fontFamily}`;
             ctx.fillStyle = '#ffffff';
             ctx.fillText(`${bank} ${currency}`, 520, 235);
 
-            ctx.font = 'bold 14px sans-serif';
+            ctx.font = `bold 14px ${fontFamily}`;
             ctx.fillStyle = '#f43f5e';
             ctx.fillText(`Salud: ${health}%`, 265, 310);
             ctx.fillStyle = '#eab308';
