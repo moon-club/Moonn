@@ -116,5 +116,39 @@ export default {
                 <rect x="498" y="168" width="247" height="78" rx="14" fill="#1e293b" opacity="0.8"/>
                 <rect x="498" y="168" width="247" height="78" rx="14" fill="none" stroke="#a855f7" stroke-width="1" opacity="0.3"/>
                 <text x="518" y="195" font-size="12" font-weight="700" fill="#c084fc" letter-spacing="0.5px">BANCO</text>
-                <text x="518" y="228" font-size="20" font-weight="700" fill="#ffffff">${bank}</text
+                <text x="518" y="228" font-size="20" font-weight="700" fill="#ffffff">${bank}</text>
+                <text x="718" y="228" font-size="14" font-weight="600" fill="#c084fc" text-anchor="end">${escapeXml(currency)}</text>
+
+                <!-- Panel inferior: Salud, Stamina y XP -->
+                <rect x="240" y="258" width="505" height="72" rx="14" fill="#1e293b" opacity="0.8"/>
+                <rect x="240" y="258" width="505" height="72" rx="14" fill="none" stroke="#6366f1" stroke-width="1" opacity="0.3"/>
                 
+                <!-- Salud -->
+                <text x="265" y="300" font-size="15" font-weight="700" fill="#fb7185">❤ Salud</text>
+                <text x="345" y="300" font-size="15" font-weight="700" fill="#ffffff">${health}%</text>
+
+                <!-- Stamina -->
+                <text x="445" y="300" font-size="15" font-weight="700" fill="#facc15">⚡ Stamina</text>
+                <text x="535" y="300" font-size="15" font-weight="700" fill="#ffffff">${stamina}%</text>
+
+                <!-- XP -->
+                <text x="630" y="300" font-size="15" font-weight="700" fill="#38bdf8">✨ XP</text>
+                <text x="675" y="300" font-size="15" font-weight="700" fill="#ffffff">${exp}</text>
+            </svg>
+            `;
+
+            const pngBuffer = await sharp(Buffer.from(svgImage))
+                .png()
+                .toBuffer();
+
+            await sock.sendMessage(msg.chat, {
+                image: pngBuffer,
+                caption: `🪪 *Tarjeta de Perfil - ${userGlobal.name || 'Usuario'}*`
+            }, { quoted: msg });
+
+        } catch (error) {
+            console.error('Error en card.js:', error);
+            await msg.reply('《✧》 Ocurrió un error al generar la tarjeta de perfil.');
+        }
+    }
+};
