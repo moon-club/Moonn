@@ -1,5 +1,5 @@
 import { createCanvas, loadImage } from '@napi-rs/canvas';
-import { drawVectorText } from '../lib/vectorText.js';
+import { drawVectorText } from '../../lib/vectorText.js';
 import db from '#db';
 
 export default {
