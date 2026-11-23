@@ -4,7 +4,7 @@ import db from '#db';
 export default {
     command: ['tarjeta2', 'card2'],
     category: 'profile',
-    description: 'Genera una tarjeta de perfil usando Canvas local.',
+    description: 'Genera una tarjeta de perfil con Canvas local.',
     run: async ({ msg, sock }) => {
         try {
             const userId = msg.mentionedJid?.[0] || msg.quoted?.sender || msg.sender;
@@ -70,51 +70,19 @@ export default {
             ctx.fill();
 
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 16px sans-serif';
+            ctx.font = 'bold 16px monospace';
             ctx.textAlign = 'center';
             ctx.fillText(`NIVEL ${level}`, 130, 273);
 
             ctx.textAlign = 'left';
-            ctx.font = 'bold 32px sans-serif';
+            ctx.font = 'bold 30px monospace';
             ctx.fillStyle = '#f8fafc';
             ctx.fillText(name, 240, 100);
 
-            ctx.font = '16px sans-serif';
+            ctx.font = '15px monospace';
             ctx.fillStyle = '#94a3b8';
             ctx.fillText(`"${bio}"`, 240, 135);
 
-            ctx.font = 'bold 14px sans-serif';
+            ctx.font = 'bold 14px monospace';
             ctx.fillStyle = '#38bdf8';
             ctx.fillText('CARTERA', 260, 205);
-            ctx.font = 'bold 22px sans-serif';
-            ctx.fillStyle = '#ffffff';
-            ctx.fillText(`${coins} ${currency}`, 260, 235);
-
-            ctx.font = 'bold 14px sans-serif';
-            ctx.fillStyle = '#a855f7';
-            ctx.fillText('BANCO', 520, 205);
-            ctx.font = 'bold 22px sans-serif';
-            ctx.fillStyle = '#ffffff';
-            ctx.fillText(`${bank} ${currency}`, 520, 235);
-
-            ctx.font = 'bold 16px sans-serif';
-            ctx.fillStyle = '#f43f5e';
-            ctx.fillText(`Salud: ${health}%`, 265, 310);
-            ctx.fillStyle = '#eab308';
-            ctx.fillText(`Stamina: ${stamina}%`, 430, 310);
-            ctx.fillStyle = '#cbd5e1';
-            ctx.fillText(`XP: ${exp}`, 600, 310);
-
-            const buffer = canvas.toBuffer('image/png');
-
-            await sock.sendMessage(msg.chat, {
-                image: buffer,
-                caption: `🪪 *Tarjeta de Perfil de ${name}*`
-            }, { quoted: msg });
-
-        } catch (error) {
-            console.error(error);
-            await msg.reply('《✧》 Ocurrió un error al generar la tarjeta con Canvas.');
-        }
-    }
-};
