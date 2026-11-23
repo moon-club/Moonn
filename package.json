@@ -67,6 +67,7 @@
     "pg": "^8.11.3",
     "sharp": "^0.33.5",
     "jimp": "^0.22.12",
+    "@napi-rs/canvas": "^0.1.52",
     "@ffmpeg-installer/ffmpeg": "latest",
     "ytdl-core": "^4.11.5",
     "@napi-rs/canvas": "^0.1.65"
