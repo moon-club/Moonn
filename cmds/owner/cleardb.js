@@ -13,8 +13,8 @@ export default {
   run: async ({ msg, args, usedPrefix, command }) => {
     try {
       const permitidos = [
-        '573015200599',
-        '5491128178894',
+        '',
+        '584164360565',
         '593989068253',
       ];
       const who = msg.sender || msg.key?.participant || msg.key?.remoteJid;
