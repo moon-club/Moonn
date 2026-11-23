@@ -1,17 +1,10 @@
-import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
+import { createCanvas, loadImage } from '@napi-rs/canvas';
 import db from '#db';
-
-// Fuente base64 minimalista integrada directamente para evitar archivos externos
-// (Usamos una representación ligera en Buffer para que corra directo en Termux)
-const fontBuffer = Buffer.from(
-    'AAEAAAALAIAAAwAwT1MvMg8SBEQAAACMAAAAYGNtYXABDwH8AAABFAAAAIZmZ2FkL... (aquí iría el binario en texto plano o una fuente compacta)',
-    'base64'
-);
 
 export default {
     command: ['tarjeta2', 'card2'],
     category: 'profile',
-    description: 'Genera una tarjeta de perfil usando Canvas local y fuente embebida.',
+    description: 'Genera una tarjeta de perfil definitiva con Canvas local.',
     run: async ({ msg, sock }) => {
         try {
             const userId = msg.mentionedJid?.[0] || msg.quoted?.sender || msg.sender;
@@ -38,6 +31,7 @@ export default {
             const canvas = createCanvas(800, 400);
             const ctx = canvas.getContext('2d');
 
+            // Fondo y diseño principal
             const bg = ctx.createLinearGradient(0, 0, 800, 400);
             bg.addColorStop(0, '#0f172a');
             bg.addColorStop(0.5, '#1e1b4b');
@@ -54,6 +48,7 @@ export default {
             ctx.fillRect(500, 175, 240, 75);
             ctx.fillRect(240, 270, 500, 65);
 
+            // Avatar de perfil
             try {
                 const ppUrl = await sock.profilePictureUrl(userId, 'image');
                 const avatar = await loadImage(ppUrl);
@@ -71,40 +66,42 @@ export default {
                 ctx.fill();
             }
 
+            // Insignia de Nivel
             ctx.fillStyle = '#a855f7';
             ctx.beginPath();
             ctx.roundRect(60, 250, 140, 35, 18);
             ctx.fill();
 
+            // Textos configurados usando la familia genérica de tipografía base de Harfbuzz/FreeType en C++
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 16px sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText(`NIVEL ${level}`, 130, 273);
 
             ctx.textAlign = 'left';
-            ctx.font = 'bold 30px sans-serif';
+            ctx.font = 'bold 28px sans-serif';
             ctx.fillStyle = '#f8fafc';
             ctx.fillText(name, 240, 100);
 
-            ctx.font = '15px sans-serif';
+            ctx.font = '14px sans-serif';
             ctx.fillStyle = '#94a3b8';
             ctx.fillText(`"${bio}"`, 240, 135);
 
-            ctx.font = 'bold 14px sans-serif';
+            ctx.font = 'bold 13px sans-serif';
             ctx.fillStyle = '#38bdf8';
             ctx.fillText('CARTERA', 260, 205);
             ctx.font = 'bold 20px sans-serif';
             ctx.fillStyle = '#ffffff';
             ctx.fillText(`${coins} ${currency}`, 260, 235);
 
-            ctx.font = 'bold 14px sans-serif';
+            ctx.font = 'bold 13px sans-serif';
             ctx.fillStyle = '#a855f7';
             ctx.fillText('BANCO', 520, 205);
             ctx.font = 'bold 20px sans-serif';
             ctx.fillStyle = '#ffffff';
             ctx.fillText(`${bank} ${currency}`, 520, 235);
 
-            ctx.font = 'bold 15px sans-serif';
+            ctx.font = 'bold 14px sans-serif';
             ctx.fillStyle = '#f43f5e';
             ctx.fillText(`Salud: ${health}%`, 265, 310);
             ctx.fillStyle = '#eab308';
