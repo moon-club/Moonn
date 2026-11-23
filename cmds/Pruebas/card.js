@@ -16,7 +16,7 @@ function escapeXml(unsafe) {
 export default {
     command: ['card', 'tarjeta', 'id'],
     category: 'profile',
-    description: 'Genera una tarjeta visual de perfil usando SVG y Sharp.',
+    description: 'Genera una tarjeta visual de perfil mejorada usando SVG y Sharp.',
     run: async ({ msg, sock, usedPrefix, command }) => {
         try {
             const userId = msg.mentionedJid?.[0] || msg.quoted?.sender || msg.sender;
@@ -38,7 +38,7 @@ export default {
             const bank = Number(user.bank || userGlobal.bank || 0).toLocaleString();
             const health = user.health ?? 100;
             const stamina = user.stamina ?? 100;
-            const bio = escapeXml((userGlobal.description || 'Sin descripción definida.').slice(0, 50));
+            const bio = escapeXml((userGlobal.description || 'Sin descripción definida.').slice(0, 48));
 
             let avatarBase64 = '';
             try {
@@ -58,83 +58,63 @@ export default {
                 console.log('⚠️ No se pudo obtener el avatar:', err.message);
             }
 
-            // SVG con estilos forzados para garantizar visibilidad en Termux
             const svgImage = `
             <svg width="800" height="400" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#0f172a"/>
-                        <stop offset="50%" stop-color="#1e1b4b"/>
-                        <stop offset="100%" stop-color="#090d16"/>
+                        <stop offset="0%" stop-color="#0b0f19"/>
+                        <stop offset="50%" stop-color="#131c31"/>
+                        <stop offset="100%" stop-color="#07090e"/>
                     </linearGradient>
                     <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="#38bdf8"/>
+                        <stop offset="0%" stop-color="#0ea5e9"/>
+                        <stop offset="50%" stop-color="#6366f1"/>
                         <stop offset="100%" stop-color="#a855f7"/>
                     </linearGradient>
                     <clipPath id="avatarClip">
-                        <circle cx="130" cy="145" r="80"/>
+                        <circle cx="130" cy="150" r="75"/>
                     </clipPath>
                     <style>
                         text {
-                            font-family: Arial, Helvetica, sans-serif;
+                            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
                         }
                     </style>
                 </defs>
 
-                <!-- Fondo principal -->
-                <rect width="800" height="400" rx="24" fill="url(#bgGrad)"/>
-                <rect x="6" y="6" width="788" height="388" rx="20" fill="none" stroke="url(#accentGrad)" stroke-width="3" opacity="0.7"/>
+                <!-- Fondo principal y marco exterior -->
+                <rect width="800" height="400" rx="28" fill="url(#bgGrad)"/>
+                <rect x="5" y="5" width="790" height="390" rx="24" fill="none" stroke="url(#accentGrad)" stroke-width="2.5" opacity="0.6"/>
 
-                <!-- Decoración -->
-                <circle cx="750" cy="50" r="120" fill="#a855f7" opacity="0.08"/>
-                <circle cx="50" cy="380" r="100" fill="#38bdf8" opacity="0.08"/>
+                <!-- Círculos decorativos de fondo -->
+                <circle cx="720" cy="70" r="130" fill="#6366f1" opacity="0.06"/>
+                <circle cx="80" cy="350" r="110" fill="#0ea5e9" opacity="0.06"/>
 
-                <!-- Avatar -->
-                <circle cx="130" cy="145" r="85" fill="url(#accentGrad)"/>
-                <circle cx="130" cy="145" r="80" fill="#1e293b"/>
-                ${avatarBase64 ? `<image href="${avatarBase64}" x="50" y="65" width="160" height="160" clip-path="url(#avatarClip)"/>` : ''}
+                <!-- Marco y Avatar del usuario -->
+                <circle cx="130" cy="150" r="81" fill="url(#accentGrad)"/>
+                <circle cx="130" cy="150" r="76" fill="#0b0f19"/>
+                ${avatarBase64 ? `<image href="${avatarBase64}" x="55" y="75" width="150" height="150" clip-path="url(#avatarClip)"/>` : ''}
 
-                <!-- Nivel -->
-                <rect x="75" y="245" width="110" height="34" rx="17" fill="url(#accentGrad)"/>
-                <text x="130" y="267" font-size="15" font-weight="bold" fill="#ffffff" text-anchor="middle">NIVEL ${level}</text>
+                <!-- Badge de Nivel -->
+                <rect x="70" y="248" width="120" height="36" rx="18" fill="url(#accentGrad)"/>
+                <text x="130" y="271" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="1px">NIVEL ${level}</text>
 
-                <!-- Textos principales -->
-                <text x="250" y="100" font-size="32" font-weight="bold" fill="#ffffff">${name}</text>
-                <text x="250" y="132" font-size="15" fill="#94a3b8">"${bio}"</text>
+                <!-- Nombre y Biografía -->
+                <text x="240" y="95" font-size="30" font-weight="700" fill="#f8fafc">${name}</text>
+                <text x="240" y="128" font-size="14" fill="#94a3b8" font-style="italic">"${bio}"</text>
 
-                <line x1="250" y1="155" x2="740" y2="155" stroke="#334155" stroke-width="2"/>
+                <!-- Línea separadora elegante -->
+                <line x1="240" y1="148" x2="745" y2="148" stroke="#334155" stroke-width="1.5" opacity="0.7"/>
 
-                <!-- Cajas de Estadísticas -->
-                <!-- Cartera -->
-                <rect x="250" y="175" width="230" height="75" rx="12" fill="#1e293b" opacity="0.9"/>
-                <text x="270" y="200" font-size="13" fill="#38bdf8" font-weight="bold">CARTERA</text>
-                <text x="270" y="232" font-size="20" fill="#ffffff" font-weight="bold">${coins} ${escapeXml(currency)}</text>
+                <!-- Tarjeta Cartera -->
+                <rect x="240" y="168" width="242" height="78" rx="14" fill="#1e293b" opacity="0.8"/>
+                <rect x="240" y="168" width="242" height="78" rx="14" fill="none" stroke="#0ea5e9" stroke-width="1" opacity="0.3"/>
+                <text x="260" y="195" font-size="12" font-weight="700" fill="#38bdf8" letter-spacing="0.5px">CARTERA</text>
+                <text x="260" y="228" font-size="20" font-weight="700" fill="#ffffff">${coins}</text>
+                <text x="460" y="228" font-size="14" font-weight="600" fill="#38bdf8" text-anchor="end">${escapeXml(currency)}</text>
 
-                <!-- Banco -->
-                <rect x="500" y="175" width="240" height="75" rx="12" fill="#1e293b" opacity="0.9"/>
-                <text x="520" y="200" font-size="13" fill="#a855f7" font-weight="bold">BANCO</text>
-                <text x="520" y="232" font-size="20" fill="#ffffff" font-weight="bold">${bank} ${escapeXml(currency)}</text>
-
-                <!-- Salud, Stamina y XP -->
-                <rect x="250" y="265" width="490" height="65" rx="12" fill="#1e293b" opacity="0.9"/>
-                <text x="275" y="304" font-size="16" fill="#f43f5e" font-weight="bold">❤ Salud: ${health}%</text>
-                <text x="445" y="304" font-size="16" fill="#eab308" font-weight="bold">⚡ Stamina: ${stamina}%</text>
-                <text x="625" y="304" font-size="15" fill="#cbd5e1">✨ XP: ${exp}</text>
-            </svg>
-            `;
-
-            const pngBuffer = await sharp(Buffer.from(svgImage))
-                .png()
-                .toBuffer();
-
-            await sock.sendMessage(msg.chat, {
-                image: pngBuffer,
-                caption: `🪪 *Tarjeta de Perfil de ${userGlobal.name || 'Usuario'}*`
-            }, { quoted: msg });
-
-        } catch (error) {
-            console.error('Error en card.js:', error);
-            await msg.reply('《✧》 Ocurrió un error al generar la tarjeta.');
-        }
-    }
-};
+                <!-- Tarjeta Banco -->
+                <rect x="498" y="168" width="247" height="78" rx="14" fill="#1e293b" opacity="0.8"/>
+                <rect x="498" y="168" width="247" height="78" rx="14" fill="none" stroke="#a855f7" stroke-width="1" opacity="0.3"/>
+                <text x="518" y="195" font-size="12" font-weight="700" fill="#c084fc" letter-spacing="0.5px">BANCO</text>
+                <text x="518" y="228" font-size="20" font-weight="700" fill="#ffffff">${bank}</text
+                
