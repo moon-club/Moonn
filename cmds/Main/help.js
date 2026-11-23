@@ -1,7 +1,6 @@
 import db from "#db"
 import fs from 'fs'
 import path from 'path'
-import { prepareWAMessageMedia } from 'baileys'
 import moment from 'moment-timezone'
 import os from 'os'
 
@@ -119,29 +118,7 @@ export default {
         if (isVideo) {
           await sock.sendMessage(msg.chat, { video: { url: banner }, caption: finalText, contextInfo: ctx }, { quoted: msg })
         } else {
-          let preview = undefined
-          try {
-            if (link) {
-              const m = await prepareWAMessageMedia(
-                { image: { url: banner } },
-                { upload: sock.waUploadToServer, mediaTypeOverride: 'thumbnail-link' }
-              )
-              preview = {
-                'canonical-url': link,
-                'matched-text': link,
-                title: namebot,
-                description: `${namebot2}, Built With 💜 By ᗩᗴTᕼᗴR ≜ ᒪᗩᗷՏ™ `,
-                jpegThumbnail: m.imageMessage?.jpegThumbnail ? Buffer.from(m.imageMessage.jpegThumbnail) : undefined,
-                highQualityThumbnail: m.imageMessage || undefined
-              }
-            }
-          } catch (previewErr) {}
-
-          if (preview) {
-            await sock.sendMessage(msg.chat, { text: finalText, linkPreview: preview, contextInfo: ctx }, { quoted: msg })
-          } else {
-            await sock.sendMessage(msg.chat, { image: { url: banner }, caption: finalText, contextInfo: ctx }, { quoted: msg })
-          }
+          await sock.sendMessage(msg.chat, { image: { url: banner }, caption: finalText, contextInfo: ctx }, { quoted: msg })
         }
       } catch (err) {
         await sock.sendMessage(msg.chat, { text: finalText, contextInfo: ctx }, { quoted: msg })
@@ -152,4 +129,4 @@ export default {
       await msg.reply(typeof msgglobal !== 'undefined' ? msgglobal : '❌ Ocurrió un error al generar el menú.')
     }
   }
-                }
+}
